@@ -13,6 +13,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -27,6 +28,7 @@ import com.nispok.snackbar.layouts.SnackbarLayout;
 import com.nispok.snackbar.listeners.ActionClickListener;
 import com.nispok.snackbar.listeners.EventListener;
 import com.nispok.snackbar.listeners.SwipeDismissTouchListener;
+//import com.nispok.snackbar.listeners.SwipeDismissTouchListener;
 
 /**
  * View that provides quick feedback about an operation in a small popup at the base of the screen
@@ -66,6 +68,7 @@ public class Snackbar extends SnackbarLayout {
     private boolean mIsShowing = false;
     private boolean mCanSwipeToDismiss = true;
     private boolean mIsDismissing = false;
+    private float mPreviousY;
     private Runnable mDismissRunnable = new Runnable() {
         @Override
         public void run() {
@@ -424,6 +427,34 @@ public class Snackbar extends SnackbarLayout {
                             }
                         }
                     }));
+
+        }else{
+            setOnTouchListener(new OnTouchListener(){
+
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    float y = event.getY();
+
+                    switch (event.getAction()) {
+                        case MotionEvent.ACTION_MOVE:
+                            int[] location = new int[2];
+                            v.getLocationInWindow(location);
+                            if (y > mPreviousY) {
+                                float dy = y - mPreviousY;
+                                v.offsetTopAndBottom(Math.round(4 * dy));
+
+                                if ((getResources().getDisplayMetrics().heightPixels - location[1]) - 100 <= 0) {
+                                    removeCallbacks(mDismissRunnable);
+                                    dismiss();
+                                }
+                            }
+                    }
+
+                    mPreviousY = y;
+
+                    return true;
+                }
+            });
         }
 
         return params;
