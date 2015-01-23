@@ -67,6 +67,7 @@ public class Snackbar extends SnackbarLayout {
     private EventListener mEventListener;
     private boolean mIsShowing = false;
     private boolean mCanSwipeToDismiss = true;
+    private boolean mCanMoveDownToDismiss;
     private boolean mIsDismissing = false;
     private float mPreviousY;
     private Runnable mDismissRunnable = new Runnable() {
@@ -262,6 +263,18 @@ public class Snackbar extends SnackbarLayout {
     }
 
     /**
+     * Determines whether this {@link com.nispok.snackbar.Snackbar} can be swiped off from the screen
+     *
+     * @param canSwipeToDismiss
+     * @return
+     */
+    public Snackbar moveDownToDismiss(boolean canMoveDownToDismiss) {
+        mCanSwipeToDismiss = false;
+        mCanMoveDownToDismiss = canMoveDownToDismiss;
+        return this;
+    }
+
+    /**
      * Sets the duration of this {@link Snackbar}. See
      * {@link Snackbar.SnackbarDuration} for available options
      *
@@ -428,7 +441,7 @@ public class Snackbar extends SnackbarLayout {
                         }
                     }));
 
-        }else{
+        }else if(mCanMoveDownToDismiss){
             setOnTouchListener(new OnTouchListener(){
 
                 @Override
